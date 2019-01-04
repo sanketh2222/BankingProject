@@ -1,0 +1,104 @@
+CS TRADE ECCONOMICS
+
+<#if doc["136"]?has_content>   
+  <#list doc["136"] as item>
+  
+<#if item["10130"]?has_content>       
+  <#if item["10130"]=="COMMISSION FEE" >
+    <#assign LV_COMM_LCL_CCY_AMT=item["10131"]?replace(",","")!"" >
+    <#assign LV_COMM_LCL_CCY_CD=item["138"]!"" >
+   </#if>  
+</#if>
+ 
+${REFDATA.put("COMM_LCL_CCY_AMT",LV_COMM_LCL_CCY_AMT!"")} 
+${REFDATA.put("COMM_LCL_CCY_CD",LV_COMM_LCL_CCY_CD!"")} 
+ 
+<#if item["10130"]?has_content>       
+  <#if item["10130"]=="FACE VALUE" >
+    <#assign LV_FACE_VAL=item["10131"]?replace(",","")!"" >
+   </#if>  
+</#if>
+ 
+${REFDATA.put("FACE_VAL",LV_FACE_VAL!"")}         
+        
+     
+${addNamedRow(                
+            "TRADE_OID",REFDATA.get("TRADE_OID"),
+            "CHARGE_NAME",item["10130"]!"",
+            "CHARGE_CURRENCY",item["138"]!"",
+            "CHARGE_AMOUNT",item["10131"]!""?replace(",","")!"",
+            "CHARGE_BASIS","",
+            "CHARGE_TYPE","",
+            "CHARGE_OVERRIDE","",
+            "CHARGE_DAYS","",
+            "CHARGE_BASIS_AMOUNT","",
+            "CHARGE_SCOPE","",
+            "DB_LAST_MODIFIED_USER","ETL",                      
+            "DB_LAST_UPDATE_TIME",REFDATA.get("DB_LAST_UPDATE_TIME"),
+            "CREATED_BY","ETL",
+            "CREATED_DATE",REFDATA.get("CREATED_DATE")
+                 )
+        }        
+    </#list>  
+    </#if>
+
+
+
+CS_TRADE_FLAGS
+
+<#if doc["10730"]?has_content>                         
+    <#list doc["10730"] as item>
+        <#if dblookup("META_SYSTRADFLAG",item["10731"]!"")?has_content>
+            <#assign flagType= dblookup("META_SYSTRADFLAG",item["10731"]!"")>
+              <#else>
+                 <#assign flagType=item["10731"]!"">
+                </#if>
+                  
+      ${addNamedRow(                
+            "TRADE_OID",REFDATA.get("TRADE_OID"),
+            "TRD_FLAG",flagType,
+            "TRD_FLAG_VALUE",item["10732"]!"",
+            "DB_LAST_MODIFIED_USER","ETL",
+            "DB_LAST_UPDATE_TIME",REFDATA.get("DB_LAST_UPDATE_TIME"),
+            "CREATED_BY","ETL",
+            "CREATED_DATE",REFDATA.get("CREATED_DATE")
+                 )
+        }        
+    </#list>                  
+</#if>
+
+
+cs_trade_linkage
+
+
+<#assign LV_FO_TRD_REF="" >
+<#if doc["10466"]?has_content>
+   <#list doc["10466"] as item>
+      <#if dblookup("META_SYSLINKTYPE",item["10460"]!"")?has_content>
+            <#assign linkType= dblookup("META_SYSLINKTYPE",item["10460"]!"")>
+              <#else>
+                 <#assign linkType=item["10460"]!"">
+                </#if>
+<#if linkType?has_content>       
+    <#if linkType=="FO TRADE REF" >
+         <#assign LV_FO_TRD_REF=item["10459"] >
+   </#if>  
+</#if>             
+${REFDATA.put("FO_TRD_REF",LV_FO_TRD_REF!"")}                              
+         ${addNamedRow(          
+            "TRADE_OID",REFDATA.get("TRADE_OID"),  
+             "LINK_TYPE",linkType!"",  
+            "LINK_ID",item["10459"]!"",
+            "LINK_REFERRING_ID","",
+            "LINK_SOURCE_ID","",
+            "LINK_SOURCE_SYSTEM","",
+            "LINK_UNIQUE_ID","",
+            "LINK_ID_VERSION","",
+            "DB_LAST_MODIFIED_USER","ETL",
+  "DB_LAST_UPDATE_TIME",REFDATA.get("DB_LAST_UPDATE_TIME"),
+            "CREATED_BY","ETL",
+            "CREATED_DATE",REFDATA.get("CREATED_DATE")
+                 )
+        }
+    </#list>                    
+</#if>
