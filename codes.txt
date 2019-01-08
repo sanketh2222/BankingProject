@@ -102,3 +102,296 @@ ${REFDATA.put("FO_TRD_REF",LV_FO_TRD_REF!"")}
         }
     </#list>                    
 </#if>
+
+
+TRADE details
+
+<#assign trade_oid = dbsequence("SEQ_TEST") >
+    ${REFDATA.put("TRADE_OID",trade_oid)}
+  <#setting time_zone='UTC'>
+  <#assign lastUpdatetime=.now?string["yyyyMMdd HH:mm:ss.SSS"]>
+    ${REFDATA.put("DB_LAST_UPDATE_TIME",lastUpdatetime)}
+  <#assign createdTS=.now?string["yyyyMMdd HH:mm:ss.SSS"]>
+    ${REFDATA.put("CREATED_DATE",createdTS)}
+      <#assign srcfilecd="">
+          
+<#if doc["75"]?has_content>
+    <#assign tradeDate =genericDateFormat(doc["75"]!"","date")>
+<#else>
+      <#assign tradeDate =doc["75"]!"" >
+</#if>   
+        
+ <#if doc["64"]?has_content>
+    <#assign setlDate =genericDateFormat(doc["64"]!"","date") >
+ <#else>
+      <#assign setlDate =doc["64"]!"" >
+ </#if>
+
+ <#if doc["344"]?has_content>
+    <#assign cobDate =genericDateFormat(doc["344"]!"","date") >
+ <#else>
+      <#assign cobDate =doc["344"]!"" >
+ </#if>
+ ${REFDATA.put("COB_DT",cobDate!"")}
+  <#if doc["779"]?has_content>
+   <#assign trdupdDt =genericDateFormat(doc["779"]!"","timeStamp")>
+ <#else>
+      <#assign trdupdDt =doc["779"]!"" >
+ </#if> 
+        
+  <#if doc["10032"]?has_content>
+   <#assign ACTL_SETL_DT =genericDateFormat(doc["10032"]!"","timeStamp")>
+ <#else>
+      <#assign ACTL_SETL_DT =doc["10032"]!"" >
+ </#if> 
+ ${REFDATA.put("ACTL_SETL_DT",ACTL_SETL_DT!"")}  
+ <#if doc["10080"]?has_content>
+   <#assign trdentryts=genericDateFormat(doc["10080"]!"","timeStamp")>
+ <#else>
+      <#assign trdentryts=doc["10080"]!"" >
+ </#if>
+ 
+           
+  <#if doc["10005"]?has_content>
+    <#if dblookup("META_SYSSRCFILECD",doc["10005"]!"")?has_content>
+     <#assign srcfilecd= dblookup("META_SYSSRCFILECD",doc["10005"]!"")>        
+  <#else>
+     <#assign srcfilecd=doc["10005"]!"">
+   </#if>
+  </#if>
+       ${REFDATA.put("SRC_FILE_CD",srcfilecd!"")}  
+
+  <#if doc["10249"]?has_content>
+    <#if dblookup("META_SYSTRDSTA",doc["10249"]!"")?has_content>
+     <#assign trdsta= dblookup("META_SYSTRDSTA",doc["10249"]!"")>        
+  <#else>
+     <#assign trdsta=doc["10249"]!"">
+   </#if>
+  </#if>
+       ${REFDATA.put("TRDSTA",trdsta!"")}                     
+   
+
+  <#if doc["63"]?has_content>
+    <#if dblookup("META_SYSSETLTYP",doc["63"]!"")?has_content>
+     <#assign setltyp= dblookup("META_SYSSETLTYP",doc["63"]!"")>        
+  <#else>
+     <#assign setltyp=doc["63"]!"">
+   </#if>
+  </#if>
+       ${REFDATA.put("SETLTYP",setltyp!"")}  
+
+  <#if doc["10913"]?has_content>
+    <#if dblookup("META_SYSTRANTYPE",doc["10913"]!"")?has_content>
+     <#assign trantype= dblookup("META_SYSTRANTYPE",doc["10913"]!"")>        
+  <#else>
+     <#assign trantype=doc["10913"]!"">
+   </#if>
+  </#if>
+       ${REFDATA.put("TRANTYPE",trantype!"")}  
+                     
+      <#if doc["10058"]?has_content> 
+     <#assign conQuantity= doc["10058"]!0?number?string("0.########")>
+     <#else>
+     <#assign conQuantity= doc["10058"]!"">
+    </#if>
+    
+   ${REFDATA.put("NET_SETL_AMT",doc["118"]!"")}
+         
+ 
+<!--<#-- NEW CODE DEVELOPMENT--> 
+<#function genericDateFormat strValue outPutType>
+<#assign returnRslt=""> 
+<#if strValue?has_content>
+<#assign returnRslt="">
+<#if strValue?string?trim?has_content>
+<#if outPutType="timeStamp">    
+<#switch strValue?length>
+<#case 6>
+<#assign returnRslt=strValue?datetime("yyMMdd")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+<#case 8>
+<#assign returnRslt=strValue?datetime("yyyyMMdd")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+<#case 10>
+<#if strValue?contains("/") > 
+<#assign strValuefp=strValue?substring(0,strValue?index_of("/"))>
+<#switch strValuefp?length>
+<#case 4>
+<#assign returnRslt=strValue?datetime("yyyy/MM/dd")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+<#case 2>
+<#assign returnRslt=strValue?datetime("MM/dd/yyyy")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+</#switch>   
+<#elseif strValue?contains("-") > 
+<#assign strValuefp=strValue?substring(0,strValue?index_of("-"))>
+<#switch strValuefp?length>
+<#case 4>
+<#assign returnRslt=strValue?datetime("yyyy-MM-dd")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+<#case 2>
+<#assign returnRslt=strValue?datetime("MM-dd-yyyy")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+</#switch>
+</#if>     
+<#break>
+<#case 17>
+<#if strValue?contains("-") > 
+<#assign returnRslt=strValue?datetime("yyyyMMdd-HH:mm:ss")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#elseif strValue?contains(" ")> 
+<#assign returnRslt=strValue?datetime("yyyyMMdd HH:mm:ss")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+</#if>
+<#break>    
+<#case 19>
+<#if strValue?contains("/") > 
+<#assign returnRslt=strValue?datetime("MM/dd/yyyy HH:mm:ss")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#elseif strValue?contains("-") > 
+<#assign returnRslt=strValue?datetime("yyyy-MM-dd HH:mm:ss")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+</#if> 
+<#break>
+<#case 23>
+<#assign returnRslt=strValue?datetime("MM/dd/yyyy HH:mm:ss.SSS")?string["yyyyMMdd HH:mm:ss.SSS"]!"">
+<#break>
+</#switch>
+<#elseif outPutType="date">
+<#switch strValue?length>
+<#case 6>
+<#assign returnRslt=strValue?datetime("yyMMdd")?string["yyyyMMdd"]!"">
+<#break>
+<#case 8>
+<#assign returnRslt=strValue?datetime("yyyyMMdd")?string["yyyyMMdd"]!"">
+<#break>
+<#case 10>
+<#if strValue?contains("/") > 
+<#assign strValuefp=strValue?substring(0,strValue?index_of("/"))>
+<#switch strValuefp?length>
+<#case 4>
+<#assign returnRslt=strValue?datetime("yyyy/MM/dd")?string["yyyyMMdd"]!"">
+<#break>
+<#case 2>
+<#assign returnRslt=strValue?datetime("MM/dd/yyyy")?string["yyyyMMdd"]!"">
+<#break>
+</#switch>
+<#elseif strValue?contains("-")> 
+<#assign strValuefp=strValue?substring(0,strValue?index_of("-"))>
+<#switch strValuefp?length>
+<#case 4>
+<#assign returnRslt=strValue?datetime("yyyy-MM-dd")?string["yyyyMMdd"]!"">
+<#break>
+<#case 2>
+<#assign returnRslt=strValue?datetime("MM-dd-yyyy")?string["yyyyMMdd"]!"">
+<#break>
+</#switch>
+</#if>
+<#break>
+<#case 17>
+<#if strValue?contains("-") > 
+<#assign returnRslt=strValue?datetime("yyyyMMdd-HH:mm:ss")?string["yyyyMMdd"]!"">
+<#elseif strValue?contains(" ")> 
+<#assign returnRslt=strValue?datetime("yyyyMMdd HH:mm:ss")?string["yyyyMMdd"]!"">
+</#if>
+<#break>
+<#case 19>
+<#if strValue?contains("/") > 
+<#assign returnRslt=strValue?datetime("MM/dd/yyyy HH:mm:ss")?string["yyyyMMdd"]!"">
+<#elseif strValue?contains("-") > 
+<#assign returnRslt=strValue?datetime("yyyy-MM-dd HH:mm:ss")?string["yyyyMMdd"]!"">
+</#if> 
+<#break>
+<#case 21>
+<#if strValue?contains("-") > 
+<#assign returnRslt=strValue?datetime("yyyyMMdd-HH:mm:ss.SSS")?string["yyyyMMdd"]!"">
+<#elseif strValue?contains(" ")> 
+<#assign returnRslt=strValue?datetime("yyyyMMdd-HH:mm:ss.SSS")?string["yyyyMMdd"]!"">
+</#if>
+<#break>
+<#case 23>
+<#assign returnRslt=strValue?datetime("MM/dd/yyyy HH:mm:ss.SSS")?string["yyyyMMdd"]!"">
+<#break>
+</#switch>
+</#if>
+</#if>
+</#if>    
+<#return returnRslt>
+</#function> 
+ 
+  <!--<#--FILENAME FROM FILE-->         
+     <#assign filePath=getmeta("fileName")>  
+     <#assign fileNameFrmFile=filePath?substring(filePath?last_index_of("/")+1)>
+     
+<!--<#--FILENAME FROM FILE--> 
+   
+  ${addNamedRow(     
+  "TRADE_OID",  REFDATA.get("TRADE_OID"),   
+"TRD_ID",doc["100205"]!"",
+"TRD_DT",tradeDate,
+"LEGAL_ENTITY_NAME","",
+"TRD_ASSET_TYPE","",
+"TRD_ASSET_TYPE_DESC","",
+"TRD_ASSET_SUBTYPE_1_CD","",
+"TRD_ASSET_SUBTYPE_1_DESC","",
+"TRD_ASSET_SUBTYPE_2_CD","",
+"TRD_ASSET_SUBTYPE_2_DESC","",
+"TRD_UNIT_PRC",doc["44"]!""?replace(",","")!"",
+"TRD_CCY",doc["120"]!"",
+"TRD_STA",trdsta!"",
+"TRD_MRKT","",
+"CLNT_PROP_TRD_TYPE","",
+"FO_BK_SYS_STA","",
+"ENTRY_DT","",
+"SETL_DT",setlDate,
+"FO_BK_SYS",doc["10561"]!"",
+"QUANTITY",doc["53"]!""?replace(",","")!"",
+"CON_QUANTITY",conQuantity?replace(",",""),
+"NET_SETL_AMT",doc["118"]!""?replace(",","")!"",
+"GRS_SETL_AMT",doc["381"]!""?replace(",","")!"",
+"CON_SETL_AMT",doc["119"]!""?replace(",","")!"",
+ "ACTIVITY_USER_ID","",
+"ACTIVITY_USER_NAME","",
+"LCL_CCY","",
+"AS_OF_DT","",
+"BLOTER_CODE","",
+"TRD_UPDATE_DT",trdupdDt!"",
+"BUY_SELL",doc["100102"]!"",
+"SL_PRSN_ID","",
+"SL_PRSN_NAME","",
+"TRDR_ID","",
+"TRDR_NAME","",
+"TRADE_VERSION",doc["10559"]!"",
+"EXEC_BRKR_CD","",
+"EXEC_BRKR","",
+"CLR_BRKR_CD","",
+"CLR_BRKR","",
+"SETL_LOC","",
+"TRAN_TYPE",trantype!"",
+"TRAN_TYPE_DESC","",
+"TRAN_SUB_TYPE","",
+"TRAN_SUB_TYPE_DESC","",
+"MICRO_CNTL_CD","",
+"COB_DT",cobDate!"",
+"FEED_SRC_SYS",doc["10083"]!"",
+"SRC_FILE_CD",srcfilecd!"",
+"DB_LAST_MODIFIED_USER","ETL",
+"DB_LAST_UPDATE_TIME",REFDATA.get("DB_LAST_UPDATE_TIME")!"",
+"CREATED_BY","ETL",
+"CREATED_DATE",REFDATA.get("CREATED_DATE")!"",
+"LEGAL_ENTITY_CD","",
+"STRIKE_PRICE","",
+"CUR_MKT_PRICE","",
+"YIELD","",
+"MAT_DT","",
+"ACTL_SETL_DT",ACTL_SETL_DT!"",
+"SOURCE_CSI_ID",doc["11245"]!"",
+"FILE_NAME",fileNameFrmFile!"",
+"GRS_SETL_AMT_USD",doc["10355"]!""?replace(",","")!"",
+"TRD_ENTRY_TS",trdentryts!"",
+"TRD_EVENT",doc["11263"]!"",
+"FX_RATE",doc["10704"]!"",
+"MAKER_USR_ID",doc["11275"]!"",
+"MAKER_USR_NM",doc["11276"]!"",
+"CHECKER_USR_ID",doc["11277"]!"",
+"CHECKER_USR_NM",doc["11278"]!"",
+"SETL_TYP",setltyp!"",
+"NORMALIZED_TRAN_TYP",doc["10922"]!""
+      )
+   }
