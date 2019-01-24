@@ -1,0 +1,54 @@
+/* ----------------- 
+147273_OBO_IncBusDate_GL_SOBOSNEW_BX ----------------- */ 
+
+insert_job: 147273_OBO_IncBusDate_GL_SOBOSNEW_BX   job_type: BOX 
+owner: eqdw
+permission: 
+date_conditions: 1
+days_of_week: mo,tu,we,th,fr,sa,su
+start_times: "9:30"
+condition: s(147273_OBO_GL_SOBOSNEW_BX)
+description: "OCEAN glob  sobosnew - Increment Business(Trade) Date for glob  sobosnew flow"
+max_run_alarm: 120
+alarm_if_fail: 1
+
+
+
+ /* ----------------- 
+ 147273_OBO_IncBusDate_GL_SOBOSNEW ----------------- */ 
+
+ insert_job: 147273_OBO_IncBusDate_GL_SOBOSNEW   job_type: CMD 
+ box_name: 147273_OBO_IncBusDate_GL_SOBOSNEW_BX
+ command: ${OCEAN_BIN}/incrBusinessDate.ksh -r glob -s sobosnew
+ machine: oceanap01d.nam.nsroot.net
+ owner: eqdw
+ permission: 
+ date_conditions: 1
+ days_of_week: mo,tu,we,th,fr,sa,su
+ description: "OCEAN sobosnew - Increment Business(Trade) Date                                                                                                                                                                                                                                                                                                         for glob  sobosnew flow"
+ std_out_file: "${ERROR_FILE}"
+ std_err_file: "${ERROR_FILE}"
+ max_run_alarm: 10
+ alarm_if_fail: 1
+ profile: "/global/ocean/data/ocean/oceanenv"
+
+
+
+147273_OBO_ISSUER_BATCH_DATA_SOBOSNEW_FW
+File watcher job to look for sftp files in the incoming folder and SFTP generates GO files  ----------------- */ 
+
+  insert_job: 147273_OBO_ISSUER_BATCH_DATA_SANKETH_FW     job_type: FW 
+  box_name: 147273_OBO_BATCH_DATA_GL_SOBOSNEW_FW_BX
+  machine: oceanap01d.nam.nsroot.net
+  owner: eqdw
+  permission: 
+  date_conditions: 0
+  description: "check the availability of sobosnew data file"
+  term_run_time: 210
+  max_run_alarm: 120
+  alarm_if_fail: 1
+  profile: "/global/ocean/data/ocean/oceanenv"
+  watch_file: "/global/ocean/data/incoming/ocean_2_0/sobosnew/*SOBOSNEW*.GO"
+  watch_interval: 10
+
+
